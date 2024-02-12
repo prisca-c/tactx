@@ -1,3 +1,33 @@
 @startuml
-State->State: A
+skinparam classAttributeIconSize 0
+
+class StateMachine {
+    current_state : State
+    set_state(state : State) : void
+    get_state() : State
+}
+
+class State {
+    # state_machine : StateMachine
+    do_action() : void
+}
+
+class AttackState {
+    do_action() : void
+}
+
+class ScanState {
+    do_action() : void
+}
+
+class SpecialAgent {
+    on_update() : void
+}
+
+StateMachine *-left-o State
+AttackState -up-|> State
+ScanState -up-|> State
+StateMachine <|-- SpecialAgent
+
+
 @enduml
