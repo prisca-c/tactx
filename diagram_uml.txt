@@ -1,0 +1,3 @@
+@startuml
+State->State: A
+@enduml
