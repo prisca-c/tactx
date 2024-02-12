@@ -1,0 +1,34 @@
+@startuml
+participant main.py
+participant SpecialAgent
+participant Agent
+participant StateMachine
+participant State
+participant ScanState
+participant AttackState
+
+main.py -> SpecialAgent: instantiate SpecialAgent
+SpecialAgent -> Agent: instantiate Agent
+SpecialAgent -> StateMachine: instantiate StateMachine
+StateMachine -> SpecialAgent: affect instance to Agent
+SpecialAgent -> StateMachine: Set fsm to initial state **self.__fsm.set_state(ScanState(...))**
+StateMachine -> ScanState: instantiate ScanState
+ScanState -> State: instantiate State with super()\nin ScanState constructor
+SpecialAgent -> main.py: affect instance to Agent
+
+main.py -> Agent: Call Agent.update()
+Agent -> SpecialAgent: Call **self._on_update()**
+SpecialAgent -> StateMachine: Call **self.__fsm.do_action()**
+StateMachine -> State: Call **self.__current_state.do_action()**
+State -> ScanState: Call **do_action()**
+ScanState -> ScanState: Check if there is a \ntarget within range \nif yes switch to AttackState \nif no keep scanning
+ScanState -> StateMachine: Call **self.__fsm.set_state(AttackState(...))**
+
+main.py -> Agent: Call Agent.update()
+Agent -> SpecialAgent: Call **self._on_update()**
+SpecialAgent -> StateMachine: Call **self.__fsm.do_action()**
+StateMachine -> State: Call **self.__current_state.do_action()**
+State -> AttackState: Call **do_action()**
+AttackState -> AttackState: Check if there is a \ntarget within range \nif no switch to ScanState \nif yes keep attacking
+AttackState -> StateMachine: Call **self.__fsm.set_state(ScanState(...))**
+@enduml
