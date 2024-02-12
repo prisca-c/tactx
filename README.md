@@ -4,7 +4,7 @@
 POO courses using project Tactx in Python.
 
 ## UML Diagram
-![UML](./diagram_uml.png)
+![UML](./diagram_uml.svg)
 
 ## Sequence Diagram
-![Sequence](./diagram_sequence.png)
+![Sequence](./diagram_sequence.svg)
