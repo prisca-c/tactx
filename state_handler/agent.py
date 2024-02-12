@@ -70,9 +70,11 @@ class ScanState(IState):
         self.__agent.set_color(0, 255, 0)
         self.__agent.on_update()
         for i in range(len(self.__zones)):
+            if self.__agent.get_distance() != 0:
+                break
             self.__agent.move_to(self.__zones[i][0], self.__zones[i][1])
             self.__agent.on_update()
-            time.sleep(0.3)
+            time.sleep(0.1)
 
 
 class AttackState(IState):
