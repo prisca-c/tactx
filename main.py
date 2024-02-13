@@ -2,7 +2,7 @@ import j2l.pytactx.agent as pytactx
 import event
 from dotenv import load_dotenv, dotenv_values
 
-from state_handler.init import AgentHandler
+from state_handler.agent import SpecialAgent
 
 load_dotenv()
 
@@ -14,15 +14,17 @@ ARENA = config.get("ARENA")
 USERNAME = config.get("USERNAME")
 PASSWORD = config.get("PASSWORD")
 SERVER = config.get("SERVER")
+zones_to_monitor = [(5, 10), (2, 2),(10, 5), (2, 18), (18, 2), (18, 18)]
 
-agent = pytactx.Agent(playerId=PLAYER_ID,
-                      arena=ARENA,
-                      username=USERNAME,
-                      password=PASSWORD,
-                      server=SERVER,
-                      verbosity=2)
-event.subscribe(agent)
+agent_first = {
+    "playerId": PLAYER_ID,
+    "arena": ARENA,
+    "username": USERNAME,
+    "password": PASSWORD,
+    "server": SERVER
+}
 
-zones_to_monitor = [(15, 10), (10, 15), (5, 10)]
+agent = SpecialAgent(agent_first, zones_to_monitor)
 
-AgentHandler(agent, zones_to_monitor)
+while True:
+    agent.on_update()
