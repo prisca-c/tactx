@@ -1,5 +1,5 @@
 class IState:
-    def do_action(self):
+    def do_action(self, *args, **kwargs):
         pass
 
     def __str__(self):
@@ -18,7 +18,7 @@ class StateMachine:
         print(f"Changing state from {self.__current_state} to {state}")
         self.__current_state = state
 
-    def do_action(self):
+    def do_action(self, *args, **kwargs):
         if self.__current_state is not None:
             print(f"Doing action for {self.__current_state}")
             return self.__current_state.do_action()
@@ -26,7 +26,7 @@ class StateMachine:
 
 class State(IState):
     def __init__(self, parent_fsm: StateMachine):
-        self.__state_machine = parent_fsm
+        self._state_machine = parent_fsm
 
     def do_action(self):
         pass
