@@ -1,24 +1,20 @@
 from state_handler.state import StateMachine, State
 import j2l.pytactx.agent as pytactx_agent
 
-import env
+from typing import TYPE_CHECKING
+
+# Type hinting check to avoid circular imports
+if TYPE_CHECKING:
+    from state_handler.special_agent import SpecialAgent
 
 cpi = 0
 
-ARENA = env.ARENA
-USERNAME = env.USERNAME
-PASSWORD = env.PASSWORD
-SERVER = env.SERVER
-
-config_args = {
-    "arena": ARENA,
-    "username": USERNAME,
-    "password": PASSWORD,
-    "server": SERVER
-}
-
 
 class AgentState(State):
+    """
+    AgentState class that inherits from the State class from the state_handler.state module.
+    """
+
     def __init__(self, agent: pytactx_agent.Agent, fsm):
         super().__init__(fsm)
         self._agent = agent
@@ -42,32 +38,14 @@ class AgentState(State):
         pass
 
 
-class SpecialAgent(pytactx_agent.Agent):
-    def __init__(self, player_id, zones_to_monitor: list[tuple]):
-        global config_args
-        args = {"player_id": player_id, **config_args}
-        super().__init__(*args.values())
-        self.__fsm = StateMachine(None)
-        self.__zones = zones_to_monitor
-        self.__fsm.set_state(ScanState(self.__fsm, self, self.__zones))
-
-    def on_update(self):
-        print("on_update")
-        if self.__fsm.current_state is not None:
-            if len(self.range) == 0:
-                self.__fsm.set_state(ScanState(self.__fsm, self, self.__zones))
-            else:
-                self.__fsm.set_state(AttackState(self, self.__fsm))
-
-        self.__fsm.do_action()
-        self.update()
-        return
-
-
 class ScanState(AgentState):
+    """
+    ScanState class that inherits from the AgentState class from the state_handler.agent_state module.
+    """
+
     def __init__(self,
                  fsm: StateMachine,
-                 player_instance: SpecialAgent,
+                 player_instance: 'SpecialAgent',
                  zones: list[tuple[int, int]]):
         super().__init__(player_instance, fsm)
         self.__zones = zones
@@ -87,7 +65,11 @@ class ScanState(AgentState):
 
 
 class AttackState(AgentState):
-    def __init__(self, agent: SpecialAgent, fsm: StateMachine):
+    """
+    AttackState class that inherits from the AgentState class from the state_handler.agent_state module.
+    """
+
+    def __init__(self, agent: 'SpecialAgent', fsm: StateMachine):
         super().__init__(agent, fsm)
         self.__agent = agent
 

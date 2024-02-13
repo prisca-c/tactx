@@ -1,4 +1,8 @@
 class IState:
+    """
+    Interface for a state.
+    """
+
     def do_action(self, *args, **kwargs):
         pass
 
@@ -7,6 +11,10 @@ class IState:
 
 
 class StateMachine:
+    """
+    StateMachine class that represents a state machine.
+    """
+
     def __init__(self, initial_state: IState = None):
         self.__current_state: IState = initial_state
 
@@ -25,6 +33,10 @@ class StateMachine:
 
 
 class State(IState):
+    """
+    State class that represents a state.
+    """
+
     def __init__(self, parent_fsm: StateMachine):
         self._state_machine = parent_fsm
 

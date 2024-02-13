@@ -1,6 +1,4 @@
-from dotenv import load_dotenv, dotenv_values
-
-from state_handler.agent import SpecialAgent
+from state_handler.special_agent import SpecialAgent
 
 zones_to_monitor = [(5, 10), (2, 2), (10, 5), (2, 18), (18, 2), (18, 18)]
 
