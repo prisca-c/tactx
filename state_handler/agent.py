@@ -1,24 +1,21 @@
 import time
 
-from state_handler.state import StateMachine, IState
+from state_handler.state import StateMachine, State
 import j2l.pytactx.agent as pytactx_agent
 
+cpi = 0
 
-class AgentState:
-    def __init__(self, _agent: pytactx_agent.Agent):
-        super().__init__()
-        self._agent = _agent
+
+class AgentState(State):
+    def __init__(self, agent: pytactx_agent.Agent, fsm):
+        super().__init__(fsm)
+        self._agent = agent
 
     def fire(self, enable: bool = True, firepath: any = None):
         return self._agent.fire(enable, firepath)
 
     def move_to(self, x: int, y: int):
-        while not (self._agent.x == x and self._agent.y == y):
-            self._agent.moveTowards(x, y)
-            self._agent.update()
-
-    def on_update(self):
-        self._agent.update()
+        self._agent.moveTowards(x, y)
 
     def get_distance(self):
         return self._agent.distance
@@ -29,63 +26,61 @@ class AgentState:
     def set_color(self, r: int, g: int, b: int):
         self._agent.setColor(r, g, b)
 
+    def do_action(self):
+        pass
 
-class SpecialAgentState:
-    def __init__(self, player_instance: pytactx_agent, zones_to_monitor: list[tuple]):
-        self._agent = AgentState(player_instance)
+
+class SpecialAgent(pytactx_agent.Agent):
+    def __init__(self, agent_args: dict, zones_to_monitor: list[tuple]):
+        super().__init__(*agent_args.values())
         self.__fsm = StateMachine(None)
         self.__zones = zones_to_monitor
-        while True:
-            if self._agent.get_distance() == 0:
-                print("Zone Monitoring")
-                self._zone_monitoring()
+        self.__fsm.set_state(ScanState(self.__fsm, self, self.__zones))
+
+    def on_update(self):
+        print("on_update")
+        if self.__fsm.current_state is not None:
+            if len(self.range) == 0:
+                self.__fsm.set_state(ScanState(self.__fsm, self, self.__zones))
             else:
-                print("Attacking")
-                self._attack()
+                self.__fsm.set_state(AttackState(self, self.__fsm))
 
-    def _zone_monitoring(self) -> None:
-        scan_state = ScanState(self._agent, self.__zones)
-        self.__fsm.set_state(scan_state)
-        scan_state.do_action()
-
-    def _attack(self):
-        attack_state = AttackState(self._agent)
-        self.__fsm.set_state(attack_state)
-        attack_state.do_action()
+        self.__fsm.do_action()
+        self.update()
+        return
 
 
-class ScanState(IState):
+class ScanState(AgentState):
     def __init__(self,
-                 player_instance: AgentState,
+                 fsm: StateMachine,
+                 player_instance: SpecialAgent,
                  zones: list[tuple]):
-        super().__init__()
-        self.__agent: AgentState = player_instance
+        super().__init__(player_instance, fsm)
         self.__zones = zones
 
     def do_action(self):
         self.scan()
 
     def scan(self):
-        self.__agent.fire(False)
-        self.__agent.set_color(0, 255, 0)
-        self.__agent.on_update()
-        for i in range(len(self.__zones)):
-            if self.__agent.get_distance() != 0:
-                break
-            self.__agent.move_to(self.__zones[i][0], self.__zones[i][1])
-            self.__agent.on_update()
-            time.sleep(0.1)
+        global cpi
+        print("Scanning")
+        self.fire(False)
+        self.set_color(0, 255, 56)
+        if self._agent.x == self.__zones[cpi][0] and self._agent.y == self.__zones[cpi][1]:
+            cpi = (cpi + 1) % len(self.__zones)
+
+        self.move_to(self.__zones[cpi][0], self.__zones[cpi][1])
 
 
-class AttackState(IState):
-    def __init__(self, player_instance: AgentState):
-        super().__init__()
-        self.__agent = player_instance
+class AttackState(AgentState):
+    def __init__(self, agent: SpecialAgent, fsm: StateMachine):
+        super().__init__(agent, fsm)
+        self.__agent = agent
 
     def do_action(self):
         self.attack()
 
     def attack(self):
+        print("Attacking")
         self.__agent.fire(True)
-        self.__agent.set_color(255, 0, 0)
-        self.__agent.on_update()
+        self.set_color(255, 0, 0)
