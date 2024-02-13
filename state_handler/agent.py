@@ -1,9 +1,21 @@
-import time
-
 from state_handler.state import StateMachine, State
 import j2l.pytactx.agent as pytactx_agent
 
+import env
+
 cpi = 0
+
+ARENA = env.ARENA
+USERNAME = env.USERNAME
+PASSWORD = env.PASSWORD
+SERVER = env.SERVER
+
+config_args = {
+    "arena": ARENA,
+    "username": USERNAME,
+    "password": PASSWORD,
+    "server": SERVER
+}
 
 
 class AgentState(State):
@@ -31,8 +43,10 @@ class AgentState(State):
 
 
 class SpecialAgent(pytactx_agent.Agent):
-    def __init__(self, agent_args: dict, zones_to_monitor: list[tuple]):
-        super().__init__(*agent_args.values())
+    def __init__(self, player_id, zones_to_monitor: list[tuple]):
+        global config_args
+        args = {"player_id": player_id, **config_args}
+        super().__init__(*args.values())
         self.__fsm = StateMachine(None)
         self.__zones = zones_to_monitor
         self.__fsm.set_state(ScanState(self.__fsm, self, self.__zones))
@@ -54,7 +68,7 @@ class ScanState(AgentState):
     def __init__(self,
                  fsm: StateMachine,
                  player_instance: SpecialAgent,
-                 zones: list[tuple]):
+                 zones: list[tuple[int, int]]):
         super().__init__(player_instance, fsm)
         self.__zones = zones
 
