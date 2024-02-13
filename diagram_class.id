@@ -1,0 +1,54 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class StateMachine {
+    -current_state : IState
+    +set_state(state : IState) : void
+    +do_action(): void
+}
+
+class State {
+    # state_machine : StateMachine
+    +do_action() : void
+}
+
+class AttackState {
+    +do_action() : void
+    -attack() : void
+}
+
+class ScanState {
+    +do_action() : void
+    -scan() : void
+}
+
+class SpecialAgent {
+    #fsm: StateMachine
+    +on_update() : void
+}
+
+class Agent {
+    update() : void
+}
+
+class AgentState {
+    #agent: Agent
+    +do_action() : void
+}
+
+interface IState {
+    +do_action() : void
+}
+
+StateMachine *-right- State
+StateMachine -up-o IState
+AttackState -up-|> AgentState
+ScanState -up-|> AgentState
+Agent o-right- AgentState
+AgentState -up-|> State
+SpecialAgent -up-|> Agent
+Agent o-up- StateMachine
+IState <|-down- State
+
+
+@enduml
