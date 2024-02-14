@@ -11,8 +11,10 @@ replit = "^3.2.4"
 Flask = "^2.2.0"
 urllib3 = "^1.26.12"
 paho-mqtt = "^1.6.1"
+python-dotenv = "^1.0.1"
 Pillow = "^9.5.0"
 EventProcces = "^1.5"
+pyside6 = "^6.6.1"
 
 [tool.poetry.dev-dependencies]
 debugpy = "^1.6.2"
